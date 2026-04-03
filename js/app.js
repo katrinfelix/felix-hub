@@ -35,6 +35,7 @@ function renderAll() {
     ${renderCommandsSection()}
     ${renderSkillsSection()}
     ${renderAgentsSection()}
+    ${renderSetupSection()}
     ${renderAddSection()}
   `;
   restoreLearnedState();
@@ -47,9 +48,9 @@ function renderAll() {
 function renderHome() {
   const quickItems = [
     { emoji: '🌅', title: 'Утренняя разведка', cmd: '/morning', section: 'commands' },
-    { emoji: '✈️', title: 'Написать пост', cmd: '/telegram', section: 'commands' },
+    { emoji: '✍️', title: 'Написать пост', cmd: '/telegram', section: 'commands' },
     { emoji: '🤝', title: 'Новый клиент', cmd: '/client', section: 'commands' },
-    { emoji: '🎨', title: 'Сделать сайт', cmd: '/ds', section: 'commands' },
+    { emoji: '🚀', title: 'Начать с нуля', cmd: 'настройка', section: 'setup' },
   ];
 
   const cats = [
@@ -77,7 +78,7 @@ function renderHome() {
       <!-- QUICK START -->
       <div class="quick-grid">
         ${quickItems.map(q => `
-          <div class="quick-card" onclick="navigate('${q.section}'); setTimeout(()=>filterCommands('${q.cmd.replace('/','') === 'morning' ? 'разведка' : q.cmd.replace('/','') === 'telegram' ? 'контент' : q.cmd.replace('/','') === 'client' ? 'клиенты' : 'дизайн'}'), 100)">
+          <div class="quick-card" onclick="navigate('${q.section}')${q.section === 'commands' ? "; setTimeout(()=>filterCommands('" + (q.cmd === '/morning' ? 'разведка' : q.cmd === '/telegram' ? 'контент' : 'клиенты') + "'), 100)" : ''}">
             <div class="qc-emoji">${q.emoji}</div>
             <div class="qc-title">${q.title}</div>
             <div class="qc-cmd">${q.cmd}</div>
@@ -379,6 +380,269 @@ function renderAgentsSection() {
       </div>
     </div>
   </section>`;
+}
+
+// =============================================
+// SETUP SECTION
+// =============================================
+
+function renderSetupSection() {
+  const selfSteps = [
+    {
+      num: '1',
+      emoji: '✅',
+      title: 'Плагины установлены',
+      desc: 'У тебя уже 31 плагин в ~/Documents/Felix/plugins/. Ничего устанавливать не надо — ты это уже прошла.',
+      cmd: null,
+      time: 'Готово'
+    },
+    {
+      num: '2',
+      emoji: '🔌',
+      title: 'Подключи NotebookLM MCP',
+      desc: 'MCP уже прописан в .mcp.json. При следующем открытии Claude Code — он подключится автоматически. Проверь: должен появиться notebooklm-mcp в списке инструментов.',
+      cmd: null,
+      time: 'Готово'
+    },
+    {
+      num: '3',
+      emoji: '⚙️',
+      title: 'Настрой разведку (один раз)',
+      desc: 'Запусти /setup — он создаст notebooks в NotebookLM и подключит источники (конкуренты, тренды, YouTube). Делается один раз, занимает 15–20 минут.',
+      cmd: '/setup',
+      time: '15–20 мин, 1 раз'
+    },
+    {
+      num: '4',
+      emoji: '🌅',
+      title: 'Каждое утро — /morning',
+      desc: 'Открываешь Claude Code → пишешь /morning → за 5–10 минут получаешь: тренды, что делают конкуренты, 5 идей для постов. Это твоя ежедневная разведка.',
+      cmd: '/morning',
+      time: '5–10 мин, ежедневно'
+    },
+    {
+      num: '5',
+      emoji: '✍️',
+      title: 'Напиши первый пост',
+      desc: 'После /morning у тебя есть тема. Пиши: /telegram [тема из разведки]. Получаешь готовый пост под твой голос. Если надо причесать — попроси human-style.',
+      cmd: '/telegram',
+      time: '5–7 мин'
+    },
+    {
+      num: '6',
+      emoji: '🤝',
+      title: 'Первый клиент через /client',
+      desc: 'Новый клиент? Запусти /client — агент проведёт 30-вопросный онбординг, соберёт бриф, создаст маркетинговый профиль. Всё сохранится в Felix-Vault.',
+      cmd: '/client',
+      time: '30–45 мин'
+    },
+    {
+      num: '7',
+      emoji: '📈',
+      title: 'Стратегия за один сеанс',
+      desc: 'Для себя или клиента: /strategy. Это диалог на 45–90 минут — глубокий разбор ниши, ICP, позиционирование, контент-стратегия. Результат: документ на 10+ страниц.',
+      cmd: '/strategy',
+      time: '45–90 мин'
+    }
+  ];
+
+  const clientSteps = [
+    {
+      step: 'Шаг 1',
+      title: 'Онбординг клиента',
+      cmd: '/client',
+      desc: 'Запускаешь /client — агент задаёт 30 структурных вопросов о бизнесе клиента. Записывает голос, боли, ICP, цели. Создаёт файл профиля.',
+      result: 'Готовый маркетинговый профиль клиента',
+      time: '30–45 мин'
+    },
+    {
+      step: 'Шаг 2',
+      title: 'Маркетинговая стратегия',
+      cmd: '/strategy',
+      desc: 'На основе профиля запускаешь /strategy. Агент строит полную стратегию: позиционирование, воронка, каналы, KPI, контент-микс.',
+      result: 'Документ стратегии 10+ страниц',
+      time: '45–90 мин'
+    },
+    {
+      step: 'Шаг 3',
+      title: 'Карточка конкурентов',
+      cmd: '/battlecard',
+      desc: '/battlecard — анализ 3–5 прямых конкурентов клиента. Сильные/слабые стороны, где клиент выигрывает, где проигрывает, как позиционировать.',
+      result: 'Battlecard для отдела продаж',
+      time: '20–30 мин'
+    },
+    {
+      step: 'Шаг 4',
+      title: 'Контент-план',
+      cmd: '/plan',
+      desc: '/plan — месячный контент-план по всем каналам. Форматы, темы, частота, CTA. Привязан к стратегии из шага 2.',
+      result: 'Таблица с 20–30 единицами контента',
+      time: '15–20 мин'
+    },
+    {
+      step: 'Шаг 5',
+      title: 'Производство контента',
+      cmd: '/telegram + /reels + /carousel',
+      desc: 'Далее производство: /telegram для постов в Telegram/VK, /reels для сценариев Reels, /carousel для карусели. Всё в голосе клиента.',
+      result: 'Готовый контент под публикацию',
+      time: '5–10 мин/единица'
+    }
+  ];
+
+  const sellItems = [
+    {
+      emoji: '📊',
+      title: 'Маркетинг-стратегия под ключ',
+      price: '75 000 – 150 000 ₽',
+      what: 'Полный аудит + стратегия + battlecard + первый контент-план. Один раз на 3–6 месяцев.',
+      commands: ['/client', '/strategy', '/battlecard', '/plan'],
+      who: 'Малый бизнес, эксперты, стартапы',
+      usp: 'Ты даёшь не "консультацию", а документ с конкретными шагами и контентом на старт.'
+    },
+    {
+      emoji: '🏭',
+      title: 'Контент-фабрика (абонемент)',
+      price: 'от 50 000 ₽/мес',
+      what: 'Еженедельный контент-план + производство постов/reels/carousel. Поставка готового контента.',
+      commands: ['/morning', '/plan', '/telegram', '/reels', '/carousel'],
+      who: 'Предприниматели которым некогда, но нужен контент',
+      usp: 'Не SMM-менеджер — AI-фабрика с твоим надзором. Скорость x5, стоимость в 2 раза ниже агентства.'
+    },
+    {
+      emoji: '🛠️',
+      title: 'Настройка AI-стека для бизнеса',
+      price: '30 000 – 80 000 ₽',
+      what: 'Установка Felix-стека, настройка под нишу клиента, обучение команды работе с командами.',
+      commands: ['/setup', '/client', '/agents'],
+      who: 'Бизнес который хочет внедрить AI в работу',
+      usp: 'Ты продаёшь инфраструктуру + обучение = клиент становится самостоятельным.'
+    },
+    {
+      emoji: '🎓',
+      title: 'Обучение команды (воркшоп)',
+      price: '50 000 – 100 000 ₽',
+      what: '1–2 дневный воркшоп: что такое агенты, как работать с Claude, как автоматизировать маркетинг.',
+      commands: ['/agents', '/spawn', '/strategy'],
+      who: 'Маркетинг-команды, digital-агентства',
+      usp: 'После воркшопа команда умеет сама запускать агентов и сокращает время на контент в 3–5 раз.'
+    },
+    {
+      emoji: '🌐',
+      title: 'Лендинг / сайт за 1 день',
+      price: 'от 30 000 ₽',
+      what: 'Через /ds команда из 7 дизайн-агентов собирает полноценный сайт за 3–5 часов.',
+      commands: ['/ds'],
+      who: 'Эксперты, стартапы, малый бизнес',
+      usp: 'Скорость разработки в 10 раз быстрее агентства при сравнимом качестве.'
+    },
+    {
+      emoji: '🔍',
+      title: 'Конкурентная разведка',
+      price: '15 000 – 40 000 ₽',
+      what: 'Глубокий анализ 3–5 конкурентов: контент, офферы, цены, слабые места. Отчёт за 1–2 дня.',
+      commands: ['/competitors', '/battlecard', '/trends'],
+      who: 'Бизнес перед запуском или репозиционированием',
+      usp: 'То что агентства делают за 2 недели и 200к — ты делаешь за 2 дня.'
+    }
+  ];
+
+  return `
+  <section class="section" id="section-setup">
+    <div class="container">
+      <h2 class="section-title">Настройка</h2>
+      <p class="section-sub">Как начать, как работать с клиентами и что можно продавать</p>
+
+      <!-- TABS -->
+      <div class="setup-tabs" id="setupTabs">
+        <button class="setup-tab active" onclick="switchSetupTab('self', this)">🚀 Старт для себя</button>
+        <button class="setup-tab" onclick="switchSetupTab('clients', this)">🤝 Для клиентов</button>
+        <button class="setup-tab" onclick="switchSetupTab('sell', this)">💰 Что продавать</button>
+      </div>
+
+      <!-- TAB: SELF -->
+      <div class="setup-content" id="setup-tab-self">
+        <div class="setup-intro">
+          Ты уже прошла онбординг — плагины установлены. Осталось <strong>3 шага чтобы всё заработало</strong>, и потом ежедневная рутина из 2 команд.
+        </div>
+        <div class="setup-steps">
+          ${selfSteps.map(s => `
+            <div class="setup-step ${s.time === 'Готово' ? 'step-done' : ''}">
+              <div class="step-num">${s.time === 'Готово' ? '✓' : s.num}</div>
+              <div class="step-body">
+                <div class="step-title">${s.emoji} ${s.title}
+                  <span class="step-time">${s.time}</span>
+                </div>
+                <div class="step-desc">${s.desc}</div>
+                ${s.cmd ? `<button class="btn-copy step-cmd-btn" onclick="copyCmd('${s.cmd}', event)">Скопировать ${s.cmd}</button>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="setup-tip">
+          <strong>💡 После шага 4:</strong> Felix работает как утренняя газета + копирайтер + стратег в одном. Открываешь Claude Code → /morning → /telegram → всё.
+        </div>
+      </div>
+
+      <!-- TAB: CLIENTS -->
+      <div class="setup-content hidden" id="setup-tab-clients">
+        <div class="setup-intro">
+          Стандартный пайплайн работы с клиентом: от онбординга до контента. Занимает <strong>2–3 сессии</strong>, даёт документы на весь цикл.
+        </div>
+        <div class="client-pipeline">
+          ${clientSteps.map((s, i) => `
+            <div class="pipeline-step">
+              <div class="pipeline-connector ${i === 0 ? 'first' : ''}"></div>
+              <div class="pipeline-card">
+                <div class="pipeline-step-label">${s.step}</div>
+                <div class="pipeline-title">${s.title}</div>
+                <div class="pipeline-cmd-badge">${s.cmd}</div>
+                <div class="pipeline-desc">${s.desc}</div>
+                <div class="pipeline-meta">
+                  <span class="pipeline-result">→ ${s.result}</span>
+                  <span class="pipeline-time">⏱ ${s.time}</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="setup-tip">
+          <strong>💡 Про голос клиента:</strong> После /client его голос сохраняется в профиле. Все следующие команды (/telegram, /reels, /carousel) автоматически используют этот голос — контент звучит как он, не как ChatGPT.
+        </div>
+      </div>
+
+      <!-- TAB: SELL -->
+      <div class="setup-content hidden" id="setup-tab-sell">
+        <div class="setup-intro">
+          Что ты реально можешь продавать прямо сейчас, используя Felix. Цены — ориентиры для российского рынка B2B/B2C.
+        </div>
+        <div class="sell-grid">
+          ${sellItems.map(item => `
+            <div class="sell-card">
+              <div class="sell-emoji">${item.emoji}</div>
+              <div class="sell-title">${item.title}</div>
+              <div class="sell-price">${item.price}</div>
+              <div class="sell-what">${item.what}</div>
+              <div class="sell-commands">
+                ${item.commands.map(c => `<span class="sell-cmd">${c}</span>`).join('')}
+              </div>
+              <div class="sell-who"><strong>Кому:</strong> ${item.who}</div>
+              <div class="sell-usp"><strong>Почему купят:</strong> ${item.usp}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="setup-tip">
+          <strong>💡 Стратегия продаж:</strong> Начни с "маркетинг-стратегии под ключ" — это твой основной чек. Потом предложи абонемент на контент. Среднее LTV клиента = 3–6 месяцев × 50–150к = 150к–900к.
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function switchSetupTab(tab, btn) {
+  document.querySelectorAll('.setup-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.setup-content').forEach(c => c.classList.add('hidden'));
+  document.getElementById('setup-tab-' + tab).classList.remove('hidden');
 }
 
 // =============================================
