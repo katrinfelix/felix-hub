@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Felix AI Hub — Твой AI-стек</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <div class="nav-logo" onclick="navigate('home')">Felix</div>
+      <div class="nav-links" id="navLinks">
+        <a onclick="navigate('commands')" class="nav-link">Команды</a>
+        <a onclick="navigate('skills')" class="nav-link">Скиллы</a>
+        <a onclick="navigate('agents')" class="nav-link">Агенты</a>
+        <a onclick="navigate('add')" class="nav-link">Добавить</a>
+        <button class="nav-search-btn" onclick="toggleSearch()">🔍</button>
+      </div>
+      <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+      <a onclick="navigate('home'); closeMobileMenu()">Главная</a>
+      <a onclick="navigate('commands'); closeMobileMenu()">Команды</a>
+      <a onclick="navigate('skills'); closeMobileMenu()">Скиллы</a>
+      <a onclick="navigate('agents'); closeMobileMenu()">Агенты</a>
+      <a onclick="navigate('add'); closeMobileMenu()">Добавить</a>
+    </div>
+  </nav>
+
+  <!-- SEARCH OVERLAY -->
+  <div class="search-overlay" id="searchOverlay" onclick="closeSearch(event)">
+    <div class="search-modal">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Поиск команд и скиллов..." oninput="doSearch(this.value)" autocomplete="off">
+        <button class="search-close-btn" onclick="toggleSearch()">✕</button>
+      </div>
+      <div id="searchResults" class="search-results"></div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast">Скопировано!</div>
+
+  <!-- MAIN -->
+  <main id="app">
+    <!-- sections injected by JS -->
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
